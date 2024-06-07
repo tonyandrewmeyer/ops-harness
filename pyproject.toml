@@ -1,0 +1,179 @@
+[project]
+name = "ops-harness"
+description = "Testing the Python library behind great charms"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name="The Charm Tech team at Canonical Ltd.", email="charm-tech@lists.launchpad.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "ops>=2.0",
+    "PyYAML==6.*",
+    "websocket-client==1.*",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://juju.is/docs/sdk"
+"Repository" = "https://github.com/tonyandrewmeyer/ops-harness"
+"Issues" = "https://github.com/canonical/operator/issues"
+"Documentation" = "https://ops.readthedocs.io"
+"Changelog" = "https://github.com/canonical/operator/blob/main/CHANGES.md"
+
+[build-system]
+requires = [
+    "setuptools>=60",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "ops.version.version"}
+
+# Testing tools configuration
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+# Formatting tools configuration
+[tool.autopep8]
+max-line-length = 99
+ignore = ["W503"]
+recursive = true
+jobs = -1
+aggressive = 3
+
+# Linting tools configuration
+[tool.ruff]
+line-length = 99
+target-version = "py38"
+extend-exclude = ["docs"]
+
+# Ruff formatter configuration
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001",
+    # pep8-naming
+    "N",
+    # flake8-builtins
+    "A",
+    # flake8-copyright
+    "CPY",
+    # pyupgrade
+    "UP",
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # Ruff specific
+    "RUF",
+    # Perflint
+    "PERF",
+    # pyflakes-docstrings
+    "D",
+]
+ignore = [
+    # Use of `assert` detected
+    "S101",
+    # Do not `assert False`
+    "B011",
+    # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
+    "S403",
+    # `subprocess` module is possibly insecure
+    "S404",
+
+    # No explicit `stacklevel` keyword argument found
+    "B028",
+
+    # Return condition directly, prefer readability.
+    "SIM103",
+    # Use contextlib.suppress() instead of try/except: pass
+    "SIM105",
+    # Use a single `with` statement with multiple contexts instead of nested `with` statements
+    "SIM117",
+
+    # Missing docstring in magic method
+    "D105",
+    # Missing docstring in `__init__`
+    "D107",
+
+    # Manual list comprehension.
+    "PERF401",
+    # Manual dict comprehension.
+    "PERF403",
+
+    # Convert {} from `TypedDict` functional to class syntax
+    # Note that since we have some `TypedDict`s that cannot use the class
+    # syntax, we're currently choosing to be consistent in syntax even though
+    # some can be moved to the class syntax.
+    "UP013",
+
+    ## Likely worth doing, but later.
+
+    # `subprocess` call: check for execution of untrusted input
+    "S603",
+    # Prefer `next(iter(info_dicts))` over single element slice
+    "RUF015",
+    # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF012",
+    # Unnecessary dict comprehension for iterable; use `dict.fromkeys` instead
+    "RUF025",
+    # Unnecessary `tuple` call (rewrite as a literal)
+    "C408",
+]
+[tool.ruff.lint.per-file-ignores]
+"test/*" = [
+    # All documentation linting.
+    "D",
+
+    # Hard-coded password string.
+    "S105",
+    # Hard-coded password function argument.
+    "S106",
+
+    # "Useless" expression.
+    "B018"
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id", "min", "map", "range", "type", "TimeoutError", "ConnectionError", "Warning", "input", "format"]
+
+[tool.pyright]
+include = ["ops/testing/harness/*.py", "test/*.py"]
+pythonVersion = "3.8" # check no python > 3.8 features are used
+pythonPlatform = "All"
+typeCheckingMode = "strict"
+reportIncompatibleMethodOverride = false
+reportImportCycles = false
+reportMissingModuleSource = false
+reportPrivateUsage = false
+reportUnnecessaryIsInstance = false
+reportUnnecessaryComparison = false
+disableBytesTypePromotions = false
+stubPath = ""
