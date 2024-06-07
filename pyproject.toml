@@ -2,6 +2,7 @@
 name = "ops-harness"
 description = "Testing the Python library behind great charms"
 readme = "README.md"
+version = "0.1"
 requires-python = ">=3.8"
 authors = [
     {name="The Charm Tech team at Canonical Ltd.", email="charm-tech@lists.launchpad.com"},
@@ -16,11 +17,10 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
 ]
 dependencies = [
-    "ops>=2.0",
+    #"ops>=2.0",
     "PyYAML==6.*",
     "websocket-client==1.*",
 ]
-dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://juju.is/docs/sdk"
@@ -34,9 +34,6 @@ requires = [
     "setuptools>=60",
 ]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.dynamic]
-version = {attr = "ops.version.version"}
 
 # Testing tools configuration
 [tool.coverage.run]
