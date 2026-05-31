@@ -49,6 +49,34 @@ from ops.pebble import FileType
 
 is_linux = platform.system() == 'Linux'
 
+# The harness supports ops 2.23+. A few behaviours only exist in the 3.x
+# series, so some tests adapt their expectations based on the installed ops.
+_OPS_MAJOR = int(ops.__version__.split('.')[0])
+
+
+def _expected_backend_calls(calls: list[typing.Any]) -> list[typing.Any]:
+    """Adapt recorded-backend-call expectations to the installed ops version.
+
+    ops 3.x threads a ``relation_name`` through the relation backend calls;
+    ops 2.x doesn't, so strip it when running against the older series.
+    """
+    if _OPS_MAJOR >= 3:
+        return calls
+    normalized: list[typing.Any] = []
+    for call in calls:
+        parts: list[typing.Any] = []
+        for part in call:
+            if isinstance(part, dict):
+                part_dict = typing.cast('dict[str, typing.Any]', part)
+                stripped = {k: v for k, v in part_dict.items() if k != 'relation_name'}
+                if not stripped:
+                    continue  # The whole element was just {'relation_name': ...}.
+                parts.append(stripped)
+            else:
+                parts.append(part)
+        normalized.append(tuple(parts))
+    return normalized
+
 
 class StorageTester(ops.CharmBase):
     """Record the relation-changed events."""
@@ -2274,16 +2302,16 @@ class TestHarness:
         assert harness._get_backend_calls() == []
         rel_id = harness.add_relation('db', 'postgresql')
 
-        assert harness._get_backend_calls() == [
+        assert harness._get_backend_calls() == _expected_backend_calls([
             ('relation_ids', 'db'),
             ('relation_list', rel_id, {'relation_name': 'db'}),
             ('relation_remote_app_name', 0, {'relation_name': 'db'}),
-        ]
+        ])
 
         # update_relation_data ensures the cached data for the relation is wiped
         harness.update_relation_data(rel_id, 'test-charm/0', {'foo': 'bar'})
         test_charm_unit = harness.model.get_unit('test-charm/0')
-        assert harness._get_backend_calls(reset=True) == [
+        assert harness._get_backend_calls(reset=True) == _expected_backend_calls([
             ('relation_get', 0, 'test-charm/0', False, {'relation_name': 'db'}),
             (
                 'update_relation_data',
@@ -2294,7 +2322,7 @@ class TestHarness:
                     'relation_name': 'db',
                 },
             ),
-        ]
+        ])
 
         # add_relation_unit resets the relation_list, but doesn't trigger backend calls
         harness.add_relation_unit(rel_id, 'postgresql/0')
@@ -2303,7 +2331,7 @@ class TestHarness:
         harness.update_relation_data(rel_id, 'postgresql/0', {'foo': 'bar'})
         pgql_unit = harness.model.get_unit('postgresql/0')
 
-        assert harness._get_backend_calls(reset=False) == [
+        assert harness._get_backend_calls(reset=False) == _expected_backend_calls([
             ('relation_ids', 'db'),
             ('relation_list', rel_id, {'relation_name': 'db'}),
             ('relation_get', 0, 'postgresql/0', False, {'relation_name': 'db'}),
@@ -2316,9 +2344,9 @@ class TestHarness:
                     'relation_name': 'db',
                 },
             ),
-        ]
+        ])
         # If we check again, they are still there, but now we reset it
-        assert harness._get_backend_calls(reset=True) == [
+        assert harness._get_backend_calls(reset=True) == _expected_backend_calls([
             ('relation_ids', 'db'),
             ('relation_list', rel_id, {'relation_name': 'db'}),
             ('relation_get', 0, 'postgresql/0', False, {'relation_name': 'db'}),
@@ -2331,7 +2359,7 @@ class TestHarness:
                     'relation_name': 'db',
                 },
             ),
-        ]
+        ])
         # And the calls are gone
         assert harness._get_backend_calls() == []
 
@@ -5020,7 +5048,7 @@ class TestTestingPebbleClient:
             )
 
 
-PebbleClientType = _TestingPebbleClient | pebble.Client
+PebbleClientType = typing.Union[_TestingPebbleClient, pebble.Client]
 
 
 # For testing file-ops of the pebble client.  This is refactored into a
@@ -7151,9 +7179,13 @@ class TestChecks:
 
     def test_stop_checks(self, request: pytest.FixtureRequest):
         container = self._container_with_layer(request)
-        # This generates a warning because there's a security event
-        # logged, but we haven't set up logging for Harness in these tests.
-        with pytest.warns(RuntimeWarning):
+        if _OPS_MAJOR >= 3:
+            # On ops 3.x this generates a warning because there's a security
+            # event logged, but we haven't set up logging for Harness in these
+            # tests. ops 2.x doesn't log that event.
+            with pytest.warns(RuntimeWarning):
+                changed = container.stop_checks('chk1', 'chk2', 'chk3')
+        else:
             changed = container.stop_checks('chk1', 'chk2', 'chk3')
         assert changed == ['chk1', 'chk2']
 
