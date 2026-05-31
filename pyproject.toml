@@ -3,7 +3,7 @@ name = "ops-harness"
 description = "Testing the Python library behind great charms"
 readme = "README.md"
 version = "0.1"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [
     {name="The Charm Tech team at Canonical Ltd.", email="charm-tech@lists.launchpad.com"},
 ]
@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
 ]
 dependencies = [
-    #"ops>=2.0",
+    "ops>=3.7",
     "PyYAML==6.*",
     "websocket-client==1.*",
 ]
@@ -53,7 +53,7 @@ aggressive = 3
 # Linting tools configuration
 [tool.ruff]
 line-length = 99
-target-version = "py38"
+target-version = "py310"
 extend-exclude = ["docs"]
 
 # Ruff formatter configuration
@@ -137,7 +137,7 @@ ignore = [
     # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF012",
     # Unnecessary dict comprehension for iterable; use `dict.fromkeys` instead
-    "RUF025",
+    "C420",
     # Unnecessary `tuple` call (rewrite as a literal)
     "C408",
 ]
@@ -162,8 +162,9 @@ convention = "google"
 builtins-ignorelist = ["id", "min", "map", "range", "type", "TimeoutError", "ConnectionError", "Warning", "input", "format"]
 
 [tool.pyright]
-include = ["ops/testing/harness/*.py", "test/*.py"]
-pythonVersion = "3.8" # check no python > 3.8 features are used
+include = ["src/ops/testing/harness/*.py", "test/*.py"]
+extraPaths = ["src/ops"]
+pythonVersion = "3.10" # check no python > 3.10 features are used
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 reportIncompatibleMethodOverride = false
@@ -172,5 +173,5 @@ reportMissingModuleSource = false
 reportPrivateUsage = false
 reportUnnecessaryIsInstance = false
 reportUnnecessaryComparison = false
-disableBytesTypePromotions = false
+disableBytesTypePromotions = true
 stubPath = ""
