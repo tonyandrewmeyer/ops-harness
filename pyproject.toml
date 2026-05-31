@@ -35,6 +35,17 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+# This package contributes the ``ops.testing.harness`` subpackage to the
+# (namespace) ``ops`` package, so namespace discovery is required.
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ops*"]
+namespaces = true
+
+# Ship the PEP 561 marker so type checkers pick up the inline annotations.
+[tool.setuptools.package-data]
+"ops.testing.harness" = ["py.typed"]
+
 # Testing tools configuration
 [tool.coverage.run]
 branch = true
