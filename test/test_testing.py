@@ -35,17 +35,17 @@ import unittest
 import uuid
 from unittest.mock import MagicMock, patch
 
-import pytest
-import harness as testing
-import yaml
-from harness import ExecResult
-from harness.harness import _TestingPebbleClient
-
 import ops
+import pytest
+import yaml
 from ops import pebble
 from ops.jujuversion import JujuVersion
 from ops.model import _ModelBackend
 from ops.pebble import FileType
+
+import harness as testing
+from harness import ExecResult
+from harness.harness import _TestingPebbleClient
 
 is_linux = platform.system() == 'Linux'
 
