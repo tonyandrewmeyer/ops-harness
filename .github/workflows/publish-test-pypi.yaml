@@ -1,0 +1,28 @@
+name: Publish to TestPyPI
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: publish-test-pypi
+      url: https://test.pypi.org/project/ops-harness/
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+      - name: Build distributions
+        run: uv build
+      - name: Publish to TestPyPI
+        # Trusted publishing: no API token, authenticates via OIDC.
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
+        with:
+          repository-url: https://test.pypi.org/legacy/
