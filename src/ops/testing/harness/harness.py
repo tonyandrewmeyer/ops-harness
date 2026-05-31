@@ -54,9 +54,25 @@ from typing import (
 from ops import charm, framework, model, pebble, storage
 from ops._private import yaml
 from ops.charm import CharmBase, CharmMeta, RelationRole
-from ops.jujucontext import JujuContext
-from ops.model import Container, RelationNotFoundError, _StatusName
+from ops.model import Container, RelationNotFoundError
 from ops.pebble import ExecProcess
+
+# ops renamed several internal symbols between the 2.x and 3.x series. The
+# harness supports the full ops 2.23+ range, so it falls back to the older
+# names at runtime when the newer ones are absent. For type checking we always
+# use the 3.x names (static analysis runs against ops 3.x; see tox.ini).
+if typing.TYPE_CHECKING:
+    from ops.jujucontext import JujuContext
+    from ops.model import _StatusName
+else:
+    try:
+        from ops.jujucontext import JujuContext
+    except ImportError:
+        from ops.jujucontext import _JujuContext as JujuContext
+    try:
+        from ops.model import _StatusName
+    except ImportError:
+        from ops.model import StatusName as _StatusName
 
 if typing.TYPE_CHECKING:
     from ops.model import _NetworkDict
@@ -72,21 +88,26 @@ if typing.TYPE_CHECKING:
             """
 
 
-ReadableBuffer = bytes | str | StringIO | BytesIO | BinaryIO
-_StringOrPath = str | pathlib.PurePosixPath | pathlib.Path
+# These type aliases and functional ``TypedDict``s are evaluated at runtime
+# (unlike annotations, which ``from __future__ import annotations`` turns into
+# strings), so they use ``typing.Union``/``typing.Optional`` and
+# ``typing.List``/``typing.Dict`` rather than PEP 604 unions and PEP 585
+# subscripted builtins, both of which require Python 3.10/3.9 at runtime.
+ReadableBuffer = typing.Union[bytes, str, StringIO, BytesIO, BinaryIO]
+_StringOrPath = typing.Union[str, pathlib.PurePosixPath, pathlib.Path]
 _FileKwargs = TypedDict(
     '_FileKwargs',
     {
-        'permissions': int | None,
+        'permissions': typing.Optional[int],
         'last_modified': datetime.datetime,
-        'user_id': int | None,
-        'user': str | None,
-        'group_id': int | None,
-        'group': str | None,
+        'user_id': typing.Optional[int],
+        'user': typing.Optional[str],
+        'group_id': typing.Optional[int],
+        'group': typing.Optional[str],
     },
 )
 
-_RelationEntities = TypedDict('_RelationEntities', {'app': str, 'units': list[str]})
+_RelationEntities = TypedDict('_RelationEntities', {'app': str, 'units': typing.List[str]})
 
 _RawStatus = TypedDict(
     '_RawStatus',
@@ -100,21 +121,21 @@ _ConfigOption = TypedDict(
     {
         'type': Literal['string', 'int', 'float', 'boolean', 'secret'],
         'description': str,
-        'default': str | int | float | bool,
+        'default': typing.Union[str, int, float, bool],
     },
 )
-_RawConfig = TypedDict('_RawConfig', {'options': dict[str, _ConfigOption]})
+_RawConfig = TypedDict('_RawConfig', {'options': typing.Dict[str, _ConfigOption]})
 
 
 # YAMLStringOrFile is something like metadata.yaml or actions.yaml. You can
 # pass in a file-like object or the string directly.
-YAMLStringOrFile = str | TextIO
+YAMLStringOrFile = typing.Union[str, TextIO]
 
 
 # An instance of an Application or Unit, or the name of either.
 # This is done here to avoid a scoping issue with the `model` property
 # of the Harness class below.
-AppUnitOrName = str | model.Application | model.Unit
+AppUnitOrName = typing.Union[str, model.Application, model.Unit]
 
 
 # CharmType represents user charms that are derived from CharmBase.
@@ -155,7 +176,9 @@ class ExecResult:
     stderr: str | bytes = b''
 
 
-ExecHandler = Callable[[ExecArgs], ExecResult | None]
+# ``typing.Callable`` rather than ``collections.abc.Callable`` because this is
+# subscripted at runtime, which the latter only supports on Python 3.9+.
+ExecHandler = typing.Callable[[ExecArgs], typing.Optional[ExecResult]]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -288,7 +311,16 @@ class Harness(Generic[CharmType]):
         context_environ = os.environ.copy()
         if 'JUJU_VERSION' not in context_environ:
             context_environ['JUJU_VERSION'] = '0.0.0'
-        self._juju_context = JujuContext._from_dict(context_environ)
+        # ops 3.x renamed this constructor from ``from_dict`` to ``_from_dict``.
+        try:
+            self._juju_context = JujuContext._from_dict(context_environ)
+        except AttributeError:
+            # The cast keeps the type as JujuContext: ops 2.x exposes the
+            # constructor under the public ``from_dict`` name.
+            self._juju_context = cast(
+                'JujuContext',
+                JujuContext.from_dict(context_environ),  # type: ignore[attr-defined]
+            )
         self._charm_cls = charm_cls
         self._charm: CharmType | None = None
         self._charm_dir = 'no-disk-path'  # this may be updated by _create_meta
@@ -2244,7 +2276,7 @@ def _copy_docstrings(source_cls: type[object]) -> Callable[[_T], _T]:
 
 
 @_record_calls
-class _TestingConfig(dict[str, str | int | float | bool]):
+class _TestingConfig(typing.Dict[str, typing.Union[str, int, float, bool]]):
     """Represents the Juju Config."""
 
     _supported_types: ClassVar[dict[str, Any]] = {
@@ -2317,6 +2349,14 @@ class _SecretRevision:
     content: dict[str, str]
 
 
+def _new_grants() -> dict[int, set[str]]:
+    return {}
+
+
+def _new_user_secrets_grants() -> set[str]:
+    return set()
+
+
 @dataclasses.dataclass
 class _Secret:
     id: str
@@ -2327,8 +2367,10 @@ class _Secret:
     label: str | None = None
     description: str | None = None
     tracked: int = 1
-    grants: dict[int, set[str]] = dataclasses.field(default_factory=dict[int, set[str]])
-    user_secrets_grants: set[str] = dataclasses.field(default_factory=set[str])
+    # Typed factories (rather than bare ``dict``/``set``) keep the field types
+    # precise for the static checker.
+    grants: dict[int, set[str]] = dataclasses.field(default_factory=_new_grants)
+    user_secrets_grants: set[str] = dataclasses.field(default_factory=_new_user_secrets_grants)
 
 
 @_copy_docstrings(model._ModelBackend)

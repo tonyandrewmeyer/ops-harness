@@ -3,12 +3,22 @@ name = "ops-harness"
 description = "Testing the Python library behind great charms"
 readme = "README.md"
 version = "0.1"
-requires-python = ">=3.10"
+# This is a legacy compatibility package: it targets the full range of Python
+# and ops versions that charms in the wild are still pinned to, including
+# Python 3.8 (paired with the ops 2.x series; ops 3.x requires Python 3.10+).
+requires-python = ">=3.8"
 authors = [
     {name="The Charm Tech team at Canonical Ltd.", email="charm-tech@lists.launchpad.com"},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: Apache Software License",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -17,7 +27,7 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
 ]
 dependencies = [
-    "ops>=3.7",
+    "ops>=2.23",
     "PyYAML==6.*",
     "websocket-client==1.*",
 ]
@@ -64,7 +74,7 @@ aggressive = 3
 # Linting tools configuration
 [tool.ruff]
 line-length = 99
-target-version = "py310"
+target-version = "py38"
 extend-exclude = ["docs"]
 
 # Ruff formatter configuration
@@ -175,7 +185,13 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "TimeoutError", "Con
 [tool.pyright]
 include = ["src/ops/testing/harness/*.py", "test/*.py"]
 extraPaths = ["src/ops"]
-pythonVersion = "3.10" # check no python > 3.10 features are used
+# The harness supports Python 3.8+, but it is type-checked against ops 3.x
+# (whose API has the symbols the TYPE_CHECKING imports reference), and ops 3.x
+# requires Python 3.10+ and uses 3.10 syntax in its own source. Analysing at a
+# lower version makes pyright flag ops' internals, so we pin to 3.10 here and
+# rely on ruff's py38 target plus the Python 3.8 unit-test job in CI to catch
+# any use of features newer than 3.8 in the harness itself.
+pythonVersion = "3.10"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 reportIncompatibleMethodOverride = false
