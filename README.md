@@ -2,8 +2,9 @@
 
 `ops-harness` provides `Harness`, the legacy unit-testing API for charms built
 with the [`ops`](https://pypi.org/project/ops/) framework. It packages the
-`Harness` class as a standalone distribution, installed into the `ops` namespace
-as `ops.testing.harness`.
+`Harness` class as a standalone distribution that `ops` re-exports as
+`ops.testing.Harness` -- the same way `ops` re-exports the `ops-scenario`
+package's state-transition API under `ops.testing`.
 
 > [!IMPORTANT]
 > `Harness` is deprecated. For new charms, and where reasonable for existing
@@ -13,8 +14,8 @@ as `ops.testing.harness`.
 > rely on `Harness` can continue to do so as the class is removed from the core
 > `ops` distribution.
 
-- `ops-harness` requires Python 3.10 or above.
-- It depends on `ops` 3.7 or above.
+- `ops-harness` requires Python 3.8 or above.
+- It depends on `ops` 2.23 or above.
 
 ## Installation
 
@@ -31,10 +32,10 @@ uv add ops-harness
 ## Usage
 
 Add `ops-harness` to your charm's test dependencies, then import `Harness` from
-`ops.testing.harness`:
+`ops.testing`:
 
 ```python
-from ops.testing.harness import Harness
+from ops.testing import Harness
 
 from charm import MyCharm
 

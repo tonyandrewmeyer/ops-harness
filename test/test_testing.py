@@ -36,10 +36,10 @@ import uuid
 from unittest.mock import MagicMock, patch
 
 import pytest
-import testing.harness as testing
+import harness as testing
 import yaml
-from testing.harness import ExecResult
-from testing.harness.harness import _TestingPebbleClient
+from harness import ExecResult
+from harness.harness import _TestingPebbleClient
 
 import ops
 from ops import pebble
