@@ -19,7 +19,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
-      - run: uv tool install tox --with tox-uv
+      - run: uv tool install --python 3.13 tox --with tox-uv
       - name: Run linting
         run: tox -e lint
 
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.10"
-      - run: uv tool install tox --with tox-uv
+      - run: uv tool install --python 3.13 tox --with tox-uv
       - name: Run static type checks
         run: tox -e static
 
@@ -63,7 +63,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv tool install tox --with tox-uv
+      # Run tox itself on a modern Python regardless of the matrix Python:
+      # on older Pythons, uv would otherwise resolve an older tox-uv that
+      # silently ignores `dependency_groups`. tox still creates the testenv
+      # venv at the matrix Python.
+      - run: uv tool install --python 3.13 tox --with tox-uv
 
       - name: Run unit tests
         run: tox -e unit
