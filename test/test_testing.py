@@ -21,6 +21,7 @@ import importlib
 import inspect
 import io
 import ipaddress
+import math
 import os
 import pathlib
 import platform
@@ -1561,7 +1562,7 @@ class TestHarness:
         assert harness.model.config['opt_bool'] is True
         assert harness.model.config['opt_int'] == 1
         assert isinstance(harness.model.config['opt_int'], int)
-        assert harness.model.config['opt_float'] == pytest.approx(1.0)
+        assert math.isclose(harness.model.config['opt_float'], 1.0)
         assert isinstance(harness.model.config['opt_float'], float)
         assert 'opt_null' not in harness.model.config
         assert harness._backend._config._defaults['opt_null'] is None
