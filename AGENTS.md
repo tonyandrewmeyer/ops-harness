@@ -4,14 +4,15 @@
 
 `ops-harness` packages `Harness`, the legacy unit-testing API for charms built
 with the [`ops`](https://pypi.org/project/ops/) framework, as a standalone
-distribution. It is installed into the `ops` namespace as `ops.testing.harness`.
+distribution. `ops` re-exports it as `ops.testing.Harness`, the same way it
+re-exports the `ops-scenario` package under `ops.testing`.
 
 This repository uses a `src` layout and contains a single package:
 
-- **`src/ops/testing/harness/`** - The `Harness` class and its supporting types.
-  `ops` and `ops.testing` are [namespace packages](https://peps.python.org/pep-0420/)
-  (no `__init__.py`), so this package extends the `ops` package rather than
-  replacing it.
+- **`src/harness/`** - The `Harness` class and its supporting types, packaged as
+  the standalone `harness` import package. `ops` is a regular package (not a
+  namespace package), so the source lives in its own top-level `harness` package
+  and `ops` imports from it rather than the source being merged into `ops.*`.
 - **`test/`** - The unit tests (`test/test_testing.py`).
 
 The source is maintained alongside the rest of Ops in
@@ -29,8 +30,8 @@ careful consideration of backward compatibility and testing.
 
 | File | Purpose |
 |------|---------|
-| `src/ops/testing/harness/harness.py` | The `Harness` class and its helpers |
-| `src/ops/testing/harness/__init__.py` | Public API exports |
+| `src/harness/harness.py` | The `Harness` class and its helpers |
+| `src/harness/__init__.py` | Public API exports |
 | `test/test_testing.py` | The unit tests |
 | `pyproject.toml` | Packaging, lint, and type-check configuration |
 | `tox.ini` | Test, lint, and static-check environments |
@@ -47,8 +48,8 @@ careful consideration of backward compatibility and testing.
 
 ### Test Organisation
 - Tests live in `test/test_testing.py`.
-- Because of the `src` layout, the package is importable as `testing.harness`
-  when `src/ops` is on the `PYTHONPATH`; the `tox` environments set this up.
+- Because of the `src` layout, the package is importable as `harness` when
+  `src` is on the `PYTHONPATH`; the `tox` environments set this up.
 
 ## When Making Changes
 

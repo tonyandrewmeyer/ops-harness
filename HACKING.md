@@ -38,14 +38,15 @@ sudo apt-get install libyaml-dev
 
 The harness uses a `src` layout:
 
-- `src/ops/testing/harness/` -- the `Harness` source, contributed to the `ops`
-  namespace as `ops.testing.harness`. `ops` and `ops.testing` are
-  [namespace packages](https://peps.python.org/pep-0420/) (no `__init__.py`),
-  so installing `ops-harness` alongside `ops` merges the two.
+- `src/harness/` -- the `Harness` source, packaged as the standalone `harness`
+  import package. `ops` re-exports it as `ops.testing.Harness`, the same way it
+  re-exports the `ops-scenario` package under `ops.testing`. (`ops` is a regular
+  package, not a namespace package, so the source lives in its own top-level
+  `harness` package rather than under `ops.*`.)
 - `test/` -- the unit tests (`test/test_testing.py`).
 
-Because of the `src` layout, the source is importable as `testing.harness` when
-`src/ops` is on the `PYTHONPATH`. The `tox` environments set this up for you.
+Because of the `src` layout, the source is importable as `harness` when `src/`
+is on the `PYTHONPATH`. The `tox` environments set this up for you.
 
 # Testing
 
@@ -72,12 +73,12 @@ tox -e fmt
 ```
 
 For more in depth debugging, you can run `pytest` directly. Make sure that
-`ops` and the test dependencies are installed, and that `src/ops` is on the
+`ops` and the test dependencies are installed, and that `src` is on the
 `PYTHONPATH`:
 
 ```sh
 uv run --with ops --with pytest --with pyyaml --with websocket-client \
-    env PYTHONPATH=src/ops pytest
+    env PYTHONPATH=src pytest
 ```
 
 # Dependencies

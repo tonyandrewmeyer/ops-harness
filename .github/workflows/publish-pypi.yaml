@@ -19,8 +19,12 @@ jobs:
       name: publish-pypi
       url: https://pypi.org/project/ops-harness/
     permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing.
+      # id-token: required for PyPI trusted publishing (OIDC).
+      # attestations: required for actions/attest{,-build-provenance}.
+      # contents: read for actions/checkout.
       id-token: write
+      attestations: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,6 +32,30 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
       - name: Build distributions
         run: uv build
+      - name: Generate CycloneDX SBOM
+        run: |
+          uv venv
+          uv pip install .
+          uvx --from cyclonedx-bom cyclonedx-py environment .venv \
+            --output-format JSON \
+            --output-file sbom.cdx.json
+      # Two separate attestations: SLSA provenance (how it was built)
+      # and CycloneDX SBOM (what's inside). attest-build-provenance
+      # doesn't accept sbom-path, so the SBOM predicate needs its own call.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: 'dist/*'
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v2
+        with:
+          subject-path: 'dist/*'
+          sbom-path: 'sbom.cdx.json'
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
       - name: Publish to PyPI
         # Trusted publishing: no API token, authenticates via OIDC.
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0

@@ -75,16 +75,17 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-# This package contributes the ``ops.testing.harness`` subpackage to the
-# (namespace) ``ops`` package, so namespace discovery is required.
+# This package ships the standalone ``harness`` import package. The ``ops``
+# package re-exports it as ``ops.testing.Harness`` (the same way it re-exports
+# ``ops-scenario``); ``ops`` is a regular package, not a namespace package, so
+# nothing is contributed to the ``ops.*`` namespace here.
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["ops*"]
-namespaces = true
+include = ["harness*"]
 
 # Ship the PEP 561 marker so type checkers pick up the inline annotations.
 [tool.setuptools.package-data]
-"ops.testing.harness" = ["py.typed"]
+"harness" = ["py.typed"]
 
 # Testing tools configuration
 [tool.coverage.run]
@@ -213,8 +214,8 @@ convention = "google"
 builtins-ignorelist = ["id", "min", "map", "range", "type", "TimeoutError", "ConnectionError", "Warning", "input", "format"]
 
 [tool.pyright]
-include = ["src/ops/testing/harness/*.py", "test/*.py"]
-extraPaths = ["src/ops"]
+include = ["src/harness/*.py", "test/*.py"]
+extraPaths = ["src"]
 # The harness supports Python 3.8+, but it is type-checked against ops 3.x
 # (whose API has the symbols the TYPE_CHECKING imports reference), and ops 3.x
 # requires Python 3.10+ and uses 3.10 syntax in its own source. Analysing at a
