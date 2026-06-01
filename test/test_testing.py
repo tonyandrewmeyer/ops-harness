@@ -1562,8 +1562,9 @@ class TestHarness:
         assert harness.model.config['opt_bool'] is True
         assert harness.model.config['opt_int'] == 1
         assert isinstance(harness.model.config['opt_int'], int)
-        assert math.isclose(harness.model.config['opt_float'], 1.0)
-        assert isinstance(harness.model.config['opt_float'], float)
+        opt_float = harness.model.config['opt_float']
+        assert isinstance(opt_float, float)
+        assert math.isclose(opt_float, 1.0)
         assert 'opt_null' not in harness.model.config
         assert harness._backend._config._defaults['opt_null'] is None
         assert harness._backend._config._defaults['opt_no_default'] is None
