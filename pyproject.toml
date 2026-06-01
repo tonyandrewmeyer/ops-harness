@@ -71,7 +71,7 @@ unit = [
 
 [build-system]
 requires = [
-    "setuptools>=60",
+    "setuptools>=82.0.1",
 ]
 build-backend = "setuptools.build_meta"
 
