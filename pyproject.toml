@@ -38,7 +38,7 @@ dependencies = [
 # lockfile.
 [dependency-groups]
 lint = [
-    "ruff==0.11.2",
+    "ruff==0.15.14",
 ]
 static = [
     # The static env runs only on Python 3.10 (see tox.ini), so the whole

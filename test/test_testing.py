@@ -21,6 +21,7 @@ import importlib
 import inspect
 import io
 import ipaddress
+import math
 import os
 import pathlib
 import platform
@@ -439,7 +440,8 @@ class TestHarness:
         harness.remove_relation(rel_id)
         # Check relation no longer exists
         assert backend.relation_ids('db') == []
-        pytest.raises(ops.RelationNotFoundError, backend.relation_list, rel_id)
+        with pytest.raises(ops.RelationNotFoundError):
+            backend.relation_list(rel_id)
         # Check relation broken event is raised with correct data
         changes = harness.charm.get_changes()
         assert changes[0] == {
@@ -497,7 +499,8 @@ class TestHarness:
         harness.remove_relation(rel_id_2)
         # Check second relation no longer exists but first does
         assert backend.relation_ids('db') == [rel_id_1]
-        pytest.raises(ops.RelationNotFoundError, backend.relation_list, rel_id_2)
+        with pytest.raises(ops.RelationNotFoundError):
+            backend.relation_list(rel_id_2)
 
         # Check relation broken event is raised with correct data
         changes = harness.charm.get_changes()
@@ -629,10 +632,8 @@ class TestHarness:
         harness.remove_relation(rel_id)
         # Check relation and app data are removed
         assert backend.relation_ids('db') == []
-        with harness._event_context('foo'):
-            pytest.raises(
-                ops.RelationNotFoundError, backend.relation_get, rel_id, remote_app, is_app=True
-            )
+        with harness._event_context('foo'), pytest.raises(ops.RelationNotFoundError):
+            backend.relation_get(rel_id, remote_app, is_app=True)
 
     def test_removing_relation_refreshes_charm_model(self, request: pytest.FixtureRequest):
         # language=YAML
@@ -730,7 +731,8 @@ class TestHarness:
         # Check relation exists but unit and data are removed
         assert backend.relation_ids('db') == [rel_id]
         assert backend.relation_list(rel_id) == []
-        pytest.raises(KeyError, backend.relation_get, rel_id, 'postgresql/0', is_app=False)
+        with pytest.raises(KeyError):
+            backend.relation_get(rel_id, 'postgresql/0', is_app=False)
         # Check relation departed was raised with correct data
         assert harness.charm.get_changes()[0] == {
             'name': 'relation-departed',
@@ -1560,8 +1562,9 @@ class TestHarness:
         assert harness.model.config['opt_bool'] is True
         assert harness.model.config['opt_int'] == 1
         assert isinstance(harness.model.config['opt_int'], int)
-        assert harness.model.config['opt_float'] == 1.0
-        assert isinstance(harness.model.config['opt_float'], float)
+        opt_float = harness.model.config['opt_float']
+        assert isinstance(opt_float, float)
+        assert math.isclose(opt_float, 1.0)
         assert 'opt_null' not in harness.model.config
         assert harness._backend._config._defaults['opt_null'] is None
         assert harness._backend._config._defaults['opt_no_default'] is None
