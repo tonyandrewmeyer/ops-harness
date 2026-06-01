@@ -32,11 +32,41 @@ dependencies = [
     "websocket-client==1.*",
 ]
 
+# Dev dependency groups (PEP 735). Mirrors the canonical/operator layout so
+# tox + uv-venv-lock-runner pulls pinned dev deps from uv.lock rather than
+# re-resolving each env; Dependabot's uv ecosystem updates these from the
+# lockfile.
+[dependency-groups]
+lint = [
+    "ruff==0.11.2",
+]
+static = [
+    # The static env runs only on Python 3.10 (see tox.ini), so the whole
+    # group is gated on >=3.10 to keep the universal resolver happy with the
+    # project's >=3.8 floor — pytest 9 dropped Python 3.8/3.9, etc.
+    "pyright==1.1.406; python_version >= '3.10'",
+    "ops>=2.23; python_version >= '3.10'",
+    "PyYAML==6.*; python_version >= '3.10'",
+    "websocket-client==1.*; python_version >= '3.10'",
+    "pytest~=9.0; python_version >= '3.10'",
+    "typing_extensions~=4.2; python_version >= '3.10'",
+]
+unit = [
+    "ops>=2.23",
+    "PyYAML==6.*",
+    "websocket-client==1.*",
+    "coverage[toml]~=7.0",
+    # pytest 9 requires Python >=3.10.
+    "pytest~=9.0; python_version >= '3.10'",
+    "pytest~=8.3; python_version < '3.10'",
+    "typing_extensions~=4.2",
+]
+
 [project.urls]
-"Homepage" = "https://juju.is/docs/sdk"
+"Homepage" = "https://documentation.ubuntu.com/ops/latest/"
 "Repository" = "https://github.com/tonyandrewmeyer/ops-harness"
 "Issues" = "https://github.com/canonical/operator/issues"
-"Documentation" = "https://ops.readthedocs.io"
+"Documentation" = "https://documentation.ubuntu.com/ops/latest/"
 "Changelog" = "https://github.com/canonical/operator/blob/main/CHANGES.md"
 
 [build-system]
