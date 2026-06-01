@@ -17,3 +17,8 @@ updates:
       - "dependencies"
     cooldown:
       default-days: 7
+    ignore:
+      # setuptools 82+ requires Python >=3.9; this package intentionally
+      # supports Python 3.8 (see pyproject.toml).
+      - dependency-name: "setuptools"
+        versions: [">=82"]
