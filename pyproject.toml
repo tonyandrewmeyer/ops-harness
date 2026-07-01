@@ -44,7 +44,7 @@ static = [
     # The static env runs only on Python 3.10 (see tox.ini), so the whole
     # group is gated on >=3.10 to keep the universal resolver happy with the
     # project's >=3.8 floor — pytest 9 dropped Python 3.8/3.9, etc.
-    "pyright==1.1.409; python_version >= '3.10'",
+    "pyright==1.1.410; python_version >= '3.10'",
     "ops>=2.23; python_version >= '3.10'",
     "PyYAML==6.*; python_version >= '3.10'",
     "websocket-client==1.*; python_version >= '3.10'",
