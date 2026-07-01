@@ -16,6 +16,50 @@ compatibility.
 
 ---
 
+## 2026-07-01 — sync from 6e02f95 → 594d6d93
+
+**Upstream SHA:** `594d6d93788049349d009bbd08b6e0c4786b6402`
+**Synced on:** 2026-07-01
+**Previous SHA:** `6e02f95ae3467f67ea14819485368d0a2d3f74a0`
+
+### In-scope upstream commits pulled this cycle
+
+| Short SHA | Date | Subject |
+|-----------|------|---------|
+| `54376c14` | 2026-06-02 | fix: close SQLite storage in Harness.cleanup() (#2507) |
+| `98306a99` | 2026-06-04 | refactor: avoid yaml.load() to silence security scanner false positives (#2523) |
+| `6f053f68` | 2026-06-23 | docs: move docs to canonical.com/juju/docs/ops (#2545) |
+
+### Adaptations this cycle
+
+All three upstream changes are Python 3.8-compatible with no adaptation required.
+
+#### `54376c14` — close SQLite storage in `Harness.cleanup()`
+
+Added `self._framework.close()` after `self._backend._cleanup()` in the
+`cleanup()` method. This eagerly closes the `SQLiteStorage` sqlite3 connection,
+preventing `ResourceWarning: unclosed database` errors under pytest `-W error`.
+No adaptation needed — the call is plain Python and compatible with ops 2.23+.
+
+#### `98306a99` — avoid secret-scanner false positives
+
+Two harness.py changes landed in this commit:
+- In `add_oci_resource`, `'password': 'password'` is replaced with a local
+  `default_cred = 'password'` variable to sidestep secret-scanner false
+  positives. No adaptation needed.
+- The same commit also modified `ops/_private/yaml.py`, which ops-harness does
+  **not** vendor — it delegates to `ops._private.yaml` at runtime, so that
+  sub-change is out of scope and was not applied here.
+
+#### `6f053f68` — update docs URL to canonical.com/juju/docs/ops
+
+The deprecation-warning URL in `Harness.__init__` was updated from
+`https://documentation.ubuntu.com/ops/latest/howto/write-unit-tests-for-a-charm/`
+to `https://canonical.com/juju/docs/ops/latest/howto/write-unit-tests-for-a-charm/`.
+No adaptation needed.
+
+---
+
 ## 2026-06-01 — baseline established
 
 **Upstream SHA:** `6e02f95ae3467f67ea14819485368d0a2d3f74a0`
