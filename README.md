@@ -41,10 +41,10 @@ from charm import MyCharm
 
 
 def test_config_changed():
-    harness = Harness(MyCharm, meta="name: my-charm")
+    harness = Harness(MyCharm, meta='name: my-charm')
     harness.begin()
-    harness.update_config({"log-level": "debug"})
-    assert harness.charm.model.config["log-level"] == "debug"
+    harness.update_config({'log-level': 'debug'})
+    assert harness.charm.model.config['log-level'] == 'debug'
     harness.cleanup()
 ```
 
