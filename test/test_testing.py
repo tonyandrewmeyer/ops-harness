@@ -2477,8 +2477,8 @@ class TestHarness:
         harness.set_can_connect('foo', True)
         c = harness.model.unit.containers['foo']
 
-        dir_path = '/tmp/foo/dir'  # noqa: S108
-        file_path = '/tmp/foo/file'  # noqa: S108
+        dir_path = '/tmp/foo/dir'
+        file_path = '/tmp/foo/file'
 
         assert not c.isdir(dir_path)
         assert not c.exists(dir_path)
@@ -3500,7 +3500,7 @@ class TestNetwork:
         with pytest.raises(ops.RelationNotFoundError):
             binding = harness.model.get_binding('db')
             assert binding is not None
-            binding.network
+            _ = binding.network
 
     def test_add_relation_network_get(self, harness: testing.Harness[ops.CharmBase]):
         harness.add_relation('db', 'remote')
@@ -5650,7 +5650,7 @@ class TestFilesystem:
             (tempdir / 'foo/test').write_text('test')
             (tempdir / 'foo/bar/foobar').write_text('foobar')
             (tempdir / 'foo/baz').mkdir(parents=True)
-            container.push_path(tempdir / 'foo', '/tmp')  # noqa: S108
+            container.push_path(tempdir / 'foo', '/tmp')
 
             assert (container_fs_root / 'tmp').is_dir()
             assert (container_fs_root / 'tmp/foo').is_dir()
@@ -5660,7 +5660,7 @@ class TestFilesystem:
             assert (container_fs_root / 'tmp/foo/bar/foobar').read_text() == 'foobar'
 
     def test_make_dir(self, container: ops.Container, container_fs_root: pathlib.Path):
-        container.make_dir('/tmp')  # noqa: S108
+        container.make_dir('/tmp')
         assert (container_fs_root / 'tmp').is_dir()
         container.make_dir('/foo/bar/foobar', make_parents=True)
         assert (container_fs_root / 'foo/bar/foobar').is_dir()
@@ -6611,7 +6611,7 @@ class TestHandleExec:
     ):
         service: ops.pebble.ServiceDict = {
             'command': 'test',
-            'working-dir': '/tmp',  # noqa: S108
+            'working-dir': '/tmp',
             'user': 'foo',
             'user-id': 1,
             'group': 'bar',
@@ -6633,7 +6633,7 @@ class TestHandleExec:
         harness.handle_exec(container, ['ls'], handler=handler)
 
         container.exec(['ls'], service_context='test').wait()
-        assert args_history[-1].working_dir == '/tmp'  # noqa: S108
+        assert args_history[-1].working_dir == '/tmp'
         assert args_history[-1].user == 'foo'
         assert args_history[-1].user_id == 1
         assert args_history[-1].group == 'bar'
@@ -7337,9 +7337,7 @@ def test_layers_merge_in_plan(request: pytest.FixtureRequest, layer1_name: str, 
             },
         },
     })
-    harness = testing.Harness(
-        ops.CharmBase, meta='name: mycharm\ncontainers:\n  my-container:'
-    )
+    harness = testing.Harness(ops.CharmBase, meta='name: mycharm\ncontainers:\n  my-container:')
     request.addfinalizer(harness.cleanup)
     harness.set_can_connect('my-container', True)
     harness.begin()

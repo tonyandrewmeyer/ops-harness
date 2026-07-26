@@ -38,8 +38,10 @@ dependencies = [
 # lockfile.
 [dependency-groups]
 lint = [
-    "ruff==0.15.19",
-    "zizmor>=1.28.0",
+    "ruff==0.16.0",
+    # zizmor needs Python >=3.10, but this project's floor is 3.8; gate it the
+    # same way the static group gates its own 3.10-only dependencies.
+    "zizmor>=1.28.0; python_version >= '3.10'",
 ]
 static = [
     # The static env runs only on Python 3.10 (see tox.ini), so the whole
@@ -114,6 +116,9 @@ extend-exclude = ["docs"]
 quote-style = "single"
 
 [tool.ruff.lint]
+# tox runs ruff with --preview; opt in to preview rules explicitly so a ruff
+# upgrade does not silently enable new ones.
+explicit-preview-rules = true
 select = [
     # Pyflakes
     "F",
@@ -205,7 +210,11 @@ ignore = [
     "S106",
 
     # "Useless" expression.
-    "B018"
+    "B018",
+
+    # Fixed /tmp paths: these are opaque path strings passed to the harness,
+    # never created on disk.
+    "S108",
 ]
 
 [tool.ruff.lint.pydocstyle]

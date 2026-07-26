@@ -33,7 +33,6 @@ import tempfile
 import typing
 import uuid
 import warnings
-from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from io import BytesIO, IOBase, StringIO
 from textwrap import dedent
@@ -55,15 +54,17 @@ from ops import charm, framework, model, pebble, storage
 from ops._private import yaml
 from ops.charm import CharmBase, CharmMeta, RelationRole
 from ops.model import Container, RelationNotFoundError
-from ops.pebble import ExecProcess
 
 # ops renamed several internal symbols between the 2.x and 3.x series. The
 # harness supports the full ops 2.23+ range, so it falls back to the older
 # names at runtime when the newer ones are absent. For type checking we always
 # use the 3.x names (static analysis runs against ops 3.x; see tox.ini).
 if typing.TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+
     from ops.jujucontext import JujuContext
     from ops.model import _StatusName
+    from ops.pebble import ExecProcess
 else:
     try:
         from ops.jujucontext import JujuContext
@@ -80,6 +81,7 @@ if typing.TYPE_CHECKING:
     try:
         from ops.testing import State  # type: ignore
     except ImportError:
+
         class State:
             """Dummy placeholder for ops.testing.State.
 
@@ -357,7 +359,7 @@ class Harness(Generic[CharmType]):
         )
 
     def _event_context(self, event_name: str):
-        """Configures the Harness to behave as if an event hook were running.
+        """Configure the Harness to behave as if an event hook were running.
 
         This means that the Harness will perform strict access control of relation data.
 
@@ -578,7 +580,7 @@ class Harness(Generic[CharmType]):
                 charm.on[rel_name].relation_changed.emit(relation, remote_unit.app, remote_unit)
 
     def cleanup(self) -> None:
-        """Called by the test infrastructure to clean up any temporary directories/files/etc.
+        """Clean up any temporary directories/files/etc. created by the test infrastructure.
 
         Always call ``self.addCleanup(harness.cleanup)`` after creating a :class:`Harness`.
         """
@@ -801,7 +803,7 @@ class Harness(Generic[CharmType]):
 
     @contextmanager
     def hooks_disabled(self):
-        """A context manager to run code with hooks disabled.
+        """Return a context manager to run code with hooks disabled.
 
         Example::
 
@@ -2118,7 +2120,7 @@ class Harness(Generic[CharmType]):
         return self._backend._reboot_count
 
     def run_action(self, action_name: str, params: dict[str, Any] | None = None) -> ActionOutput:
-        """Simulates running a charm action, as with ``juju run``.
+        """Simulate running a charm action, as with ``juju run``.
 
         Use this only after calling :meth:`begin`.
 
@@ -2451,7 +2453,7 @@ class _TestingModelBackend:
         self._cloud_spec: model.CloudSpec | None = None
 
     def _can_connect(self, pebble_client: _TestingPebbleClient) -> bool:
-        """Returns whether the mock client is active and can support API calls with no errors."""
+        """Return whether the mock client is active and can support API calls with no errors."""
         return self._pebble_clients_can_connect[pebble_client]
 
     def _set_can_connect(self, pebble_client: _TestingPebbleClient, val: bool):
@@ -2624,7 +2626,7 @@ class _TestingModelBackend:
             self._unit_status = {'status': status, 'message': message}
 
     def storage_list(self, name: str, include_detached: bool = False):
-        """Returns a list of all attached storage mounts for the given storage name.
+        """Return a list of all attached storage mounts for the given storage name.
 
         Args:
             name: name (i.e. from metadata.yaml).

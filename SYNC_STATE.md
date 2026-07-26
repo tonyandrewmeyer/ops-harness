@@ -180,8 +180,10 @@ functions:
 def _new_grants() -> dict[int, set[str]]:
     return {}
 
+
 def _new_user_secrets_grants() -> set[str]:
     return set()
+
 
 # in the dataclass:
 grants: dict[int, set[str]] = dataclasses.field(default_factory=_new_grants)
