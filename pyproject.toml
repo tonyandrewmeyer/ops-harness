@@ -39,6 +39,7 @@ dependencies = [
 [dependency-groups]
 lint = [
     "ruff==0.15.19",
+    "zizmor>=1.28.0",
 ]
 static = [
     # The static env runs only on Python 3.10 (see tox.ini), so the whole
