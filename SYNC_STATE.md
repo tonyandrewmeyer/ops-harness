@@ -16,6 +16,29 @@ compatibility.
 
 ---
 
+## 2026-08-01 — sync from 594d6d93 → 1fdae24
+
+**Upstream SHA:** `1fdae24075724aa99176bc4b809bdb71b3b107ca`
+**Synced on:** 2026-08-01
+**Previous SHA:** `594d6d93788049349d009bbd08b6e0c4786b6402`
+
+### In-scope upstream commits pulled this cycle
+
+| Short SHA | Date | Subject |
+|-----------|------|---------|
+| `d96df35` | 2026-07-02 | chore: bump ruff from 0.15.14 to 0.15.19 (#2607) |
+
+### Adaptations this cycle
+
+No new adaptation required. The single in-scope upstream commit (`d96df35`)
+only changed docstring wording on three properties (`charm`, `model`,
+`framework`) as part of a ruff upgrade. ops-harness PR #29 ("Standardise ruff
+configuration and fix all findings") independently applied equivalent ruff
+style fixes, so those docstrings are already in the correct form in
+`src/harness/harness.py`. No code was modified this cycle.
+
+---
+
 ## 2026-07-01 — sync from 6e02f95 → 594d6d93
 
 **Upstream SHA:** `594d6d93788049349d009bbd08b6e0c4786b6402`
