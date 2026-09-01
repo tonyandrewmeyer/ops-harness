@@ -16,6 +16,47 @@ compatibility.
 
 ---
 
+## 2026-09-01 — sync from 1fdae24 → 8e6c7f8
+
+**Upstream SHA:** `8e6c7f823c980cdae15ab59d5d3e50bf98bbee40`
+**Synced on:** 2026-09-01
+**Previous SHA:** `1fdae24075724aa99176bc4b809bdb71b3b107ca`
+
+### In-scope upstream commits pulled this cycle
+
+| Short SHA | Date | Subject |
+|-----------|------|---------|
+| `d19444b` | 2026-08-26 | chore: adopt ruff 0.16's new lint conventions (#2698) |
+
+### Adaptations this cycle
+
+Only one in-scope line changed: the `noqa` suppression comment on the
+`ActionFailed` class was rewritten from the legacy `# noqa: CODE` form to
+ruff 0.16's new `# ruff: ignore[rule-name]` directive syntax.
+
+```diff
+-class ActionFailed(Exception):  # noqa: N818 (name doesn't end with "Error")
++class ActionFailed(Exception):  # ruff: ignore[error-suffix-on-exception-name]
+```
+
+ops-harness already pins `ruff==0.16.0` in its `lint` dependency group (see
+`pyproject.toml`), so the new directive syntax is supported as-is — applied
+verbatim, no adaptation needed. Verified with the pinned ruff via
+`uv run --group lint ruff check --preview .` (all checks pass) and the
+`unit` tox environment (289 tests pass).
+
+The rest of the commit (35-file mechanical `noqa` → `ruff: ignore` rewrite
+and rule-code → rule-name selector renames) only touched files outside
+`ops/_private/harness.py` / `ops/testing.py` (ruff config, other `ops/*`
+modules, `testing/`, `tracing/`), which are out of this repo's sync scope.
+
+The corresponding one-line comment change in `ops/testing.py`
+(`# ruff: noqa: F401` → `# ruff: file-ignore[unused-import]`) does not apply
+here: ops-harness's `src/harness/__init__.py` does not carry a matching
+blanket unused-import suppression, so there was nothing to update.
+
+---
+
 ## 2026-08-01 — sync from 594d6d93 → 1fdae24
 
 **Upstream SHA:** `1fdae24075724aa99176bc4b809bdb71b3b107ca`
