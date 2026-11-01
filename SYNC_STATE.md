@@ -16,6 +16,24 @@ compatibility.
 
 ---
 
+## 2026-10-01 — sync from 8e6c7f8 → 1d61496
+
+**Upstream SHA:** `1d61496253e51bebf60c70cce4437153015df1d3`
+**Synced on:** 2026-10-01
+**Previous SHA:** `8e6c7f823c980cdae15ab59d5d3e50bf98bbee40`
+
+### In-scope upstream commits pulled this cycle
+
+_None — no in-scope changes this cycle._ `git log 8e6c7f8..HEAD` and
+`git diff 8e6c7f8..HEAD` over `ops/_private/` (including `harness.py`) and
+`ops/testing.py` are empty. Only the SHA bump was recorded; no code changed.
+
+### Adaptations this cycle
+
+None.
+
+---
+
 ## 2026-09-01 — sync from 1fdae24 → 8e6c7f8
 
 **Upstream SHA:** `8e6c7f823c980cdae15ab59d5d3e50bf98bbee40`
