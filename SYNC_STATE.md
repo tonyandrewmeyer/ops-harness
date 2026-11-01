@@ -41,6 +41,20 @@ are out of scope.
 events; with ops 2.23 the framework never touches it, so it is an inert
 attribute there (harmless). The other files in that commit (`ops/model.py`,
 `ops/framework.py`) are supplied by the installed `ops` and not vendored here.
+_None — no in-scope changes this cycle._ `git log 8e6c7f8..HEAD` and
+`git diff 8e6c7f8..HEAD` over `ops/_private/` (including `harness.py`) and
+`ops/testing.py` are empty. Only the SHA bump was recorded; no code changed.
+
+---
+
+## 2026-10-01 — sync from 8e6c7f8 → 1d61496
+
+**Upstream SHA:** `1d61496253e51bebf60c70cce4437153015df1d3`
+**Synced on:** 2026-10-01
+
+### Adaptations this cycle
+
+None.
 
 ---
 
