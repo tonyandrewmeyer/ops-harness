@@ -16,6 +16,34 @@ compatibility.
 
 ---
 
+## 2026-11-01 — sync from 8e6c7f8 → e5feebf
+
+**Upstream SHA:** `e5feebfc0b45c4aaf27a57ce6fb92e2ca268365d`
+**Synced on:** 2026-11-01
+**Previous SHA:** `8e6c7f823c980cdae15ab59d5d3e50bf98bbee40`
+
+### In-scope upstream commits pulled this cycle
+
+| Short SHA | Date | Subject |
+|-----------|------|---------|
+| `b59f305` | 2026-10-07 | feat: add hook command and event context to ModelError (#2786) |
+
+Other upstream commits touching `ops/testing.py` (`ed42537`, `5335a33`,
+`0f91fb9`) only changed the scenario re-exports (`Event`, `ProxyConfig`) and
+the `Container` fallback import; ops-harness has no such re-exports, so they
+are out of scope.
+
+### Adaptations this cycle
+
+`b59f305` adds one line to `_TestingModelBackend.__init__`:
+`self._event_is_deferred = False`. Applied verbatim. Upstream
+`ops/framework.py` sets/restores this attribute on the backend while running
+events; with ops 2.23 the framework never touches it, so it is an inert
+attribute there (harmless). The other files in that commit (`ops/model.py`,
+`ops/framework.py`) are supplied by the installed `ops` and not vendored here.
+
+---
+
 ## 2026-09-01 — sync from 1fdae24 → 8e6c7f8
 
 **Upstream SHA:** `8e6c7f823c980cdae15ab59d5d3e50bf98bbee40`
